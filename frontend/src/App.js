@@ -36,7 +36,9 @@ function App() {
 
       const data = await response.json();
       setRawPlan(
-        data.rawText || JSON.stringify(data.plan, null, 2) || "No text response."
+        data.rawText ||
+          JSON.stringify(data.plan, null, 2) ||
+          "No text response."
       );
 
       if (data.plan && data.plan.itinerary) {
@@ -60,7 +62,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Travel Plan Generator</h1>
+        <h1>Trip Planner Generator</h1>
         <form onSubmit={handleSubmit} className="plan-form">
           <div className="input-group">
             <input
