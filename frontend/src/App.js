@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
 import CalendarView from "./CalendarView";
 
+import myData from "./mock/200.json";
+
 function App() {
-  const [days, setDays] = useState("");
-  const [country, setCountry] = useState("");
+  const [days, setDays] = useState("2");
+  const [fetchStatus, setFetchStatus] = useState("200");
+  const [country, setCountry] = useState("bangkok, thailand");
   const [rawPlan, setRawPlan] = useState("");
   const [loading, setLoading] = useState(false);
   const [structuredPlan, setStructuredPlan] = useState(null);
@@ -22,14 +25,20 @@ function App() {
     setStructuredPlan(null);
 
     try {
-      const response = await fetch("http://localhost:5001/api/generate-plan", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ days, country }),
-      });
-
+      let response;
+      if (fetchStatus === "none") {
+        response = await fetchData();
+      }
+      if (fetchStatus === "200") {
+        response = fetchMockData200();
+      }
+      if (fetchStatus === "400") {
+        response = fetchMockDataThrow400();
+      }
+      if (fetchStatus === "500") {
+        response = fetchMockDataThrow500();
+      }
+      console.log("Mock data fetched successfully", response);
       if (!response.ok) {
         throw new Error("Failed to get response from the server.");
       }
@@ -50,35 +59,90 @@ function App() {
         }
       }
     } catch (err) {
-      setError(
-        "An error occurred while generating the plan. Please try again."
-      );
+      if (fetchStatus !== "none") {
+        // For mock errors, just display the error message
+        setError(`${err}`);
+      } else {
+        setError(
+          "An error occurred while generating the plan. Please try again." + err
+        );
+      }
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
+  async function fetchData() {
+    return await fetch(
+      "https://trip-planner-lbspb4jy1-klogics-projects.vercel.app/api/generate-plan",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ days, country }),
+      }
+    );
+  }
+
+  function fetchMockData200() {
+    return new Response(JSON.stringify(myData), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
+
+  function fetchMockDataThrow400() {
+    throw new Error("Days and country are required.");
+  }
+  function fetchMockDataThrow500() {
+    throw new Error("Failed to generate travel plan");
+  }
+
   return (
     <div className="App">
+      <nav className="App-nav">
+        <select
+          name="fetchStatus"
+          id="fetchStatus"
+          defaultValue="200"
+          onChange={(e) => {
+            setFetchStatus(e.target.value);
+          }}
+        >
+          <option value="200">Mock Response 200 ok</option>
+          <option value="400">Mock Response 400 Bad Request</option>
+          <option value="500">Mock Response 500 Server Error</option>
+          <option value="none">No Mock</option>
+        </select>
+      </nav>
       <header className="App-header">
-        <h1>Trip Planner Generator</h1>
+        <h1 data-testid="header">Trip Planner Generator</h1>
         <form onSubmit={handleSubmit} className="plan-form">
-          <div className="input-group">
+          <div className="input-group" data-testid="input-group">
             <input
               type="number"
               value={days}
               onChange={(e) => setDays(e.target.value)}
               placeholder="Number of days (e.g., 3)"
+              data-testid="day"
             />
             <input
               type="text"
               value={country}
               onChange={(e) => setCountry(e.target.value)}
               placeholder="Country (e.g., Thailand)"
+              data-testid="country"
             />
           </div>
-          <button type="submit" disabled={loading}>
+          <button
+            type="submit"
+            disabled={loading}
+            data-testid="generate-button"
+          >
             {loading ? "Generating..." : "Generate Plan"}
           </button>
         </form>
