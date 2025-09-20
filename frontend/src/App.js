@@ -120,23 +120,29 @@ function App() {
         </select>
       </nav>
       <header className="App-header">
-        <h1>Trip Planner Generator</h1>
+        <h1 data-testid="header">Trip Planner Generator</h1>
         <form onSubmit={handleSubmit} className="plan-form">
-          <div className="input-group">
+          <div className="input-group" data-testid="input-group">
             <input
               type="number"
               value={days}
               onChange={(e) => setDays(e.target.value)}
               placeholder="Number of days (e.g., 3)"
+              data-testid="day"
             />
             <input
               type="text"
               value={country}
               onChange={(e) => setCountry(e.target.value)}
               placeholder="Country (e.g., Thailand)"
+              data-testid="country"
             />
           </div>
-          <button type="submit" disabled={loading}>
+          <button
+            type="submit"
+            disabled={loading}
+            data-testid="generate-button"
+          >
             {loading ? "Generating..." : "Generate Plan"}
           </button>
         </form>
