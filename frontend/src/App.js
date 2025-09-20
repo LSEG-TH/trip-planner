@@ -5,9 +5,9 @@ import CalendarView from "./CalendarView";
 import myData from "./mock/200.json";
 
 function App() {
-  const [days, setDays] = useState("");
+  const [days, setDays] = useState("2");
   const [fetchStatus, setFetchStatus] = useState("200");
-  const [country, setCountry] = useState("");
+  const [country, setCountry] = useState("bangkok, thailand");
   const [rawPlan, setRawPlan] = useState("");
   const [loading, setLoading] = useState(false);
   const [structuredPlan, setStructuredPlan] = useState(null);
